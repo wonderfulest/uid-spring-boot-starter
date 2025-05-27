@@ -1,0 +1,33 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+项目目录结构为：
+
+uid-spring-boot-starter/
+├── src/main/java/com/wukong/uid/
+│   ├── UidAutoConfiguration.java
+│   ├── UidGenerator.java
+│   ├── UidProperties.java
+│   └── ...（其他实现类）
+├── src/main/resources/
+│   ├── META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+│   └── application.properties（可选，默认配置）
+├── pom.xml
+└── README.md
+
+
+数据库设计参考：[uid.sql](mdc:sql/uid.sql)
+
+项目为唯一 id 生成器；支持 spring-boot-starter 引入；
+
+
+通过 号段模式 下发id
+
+## 推进号段
+
+- 应用启动时，号段会自动后移，历史号段不会再被分配。
+- 在 UidGeneratorService 构造方法中，调用了 loadSegment()，应用启动时会自动分配一个新的号段，并将数据库号段后移，避免与历史号段重叠。
+- loadSegment() 每次都会推进号段（max_id 增加），并将新号段的所有ID打乱后放入内存池。
+- 每次池快用完时也会自动推进号段，保证唯一性和安全性。

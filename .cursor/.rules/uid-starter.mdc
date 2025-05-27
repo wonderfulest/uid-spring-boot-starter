@@ -1,0 +1,40 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+将 TinyId 封装成一个标准的 Spring Boot Starter 模块，包括以下部分：
+
+✅ 模块功能清单：
+自动读取配置（如 bizType 和 token）
+
+提供 IdGeneratorService 用于生成唯一 ID
+
+支持通过 @Autowired 自动注入
+
+通过 spring.factories 实现自动装配
+
+🧩 使用方式（在业务项目中）：
+
+引入 starter（以本地 jar 或发布到私服为例）
+
+添加配置：
+
+```
+tinyid:
+  biz-type: order
+  token: abc123
+```
+
+```
+@Autowired
+private IdGeneratorService idGeneratorService;
+
+Long id = idGeneratorService.getId("order");
+```
+
+如需：
+
+添加 ID 缓存策略
+
+支持初始化多业务类型
