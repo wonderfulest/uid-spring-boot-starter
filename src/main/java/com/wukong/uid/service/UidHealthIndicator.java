@@ -1,11 +1,9 @@
 package com.wukong.uid.service;
 
+import com.wukong.uid.mapper.TinyIdInfoMapper;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
-
-import com.wukong.uid.mapper.TinyIdInfoMapper;
 
 @Component
 public class UidHealthIndicator extends AbstractHealthIndicator {

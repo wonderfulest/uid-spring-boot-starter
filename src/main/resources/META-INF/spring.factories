@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.example.uid.config.UidAutoConfiguration 
+  com.wukong.uid.config.UidAutoConfiguration 

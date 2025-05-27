@@ -20,7 +20,7 @@ public class UidGeneratorServiceTest {
     public void setUp() {
         mapper = Mockito.mock(TinyIdInfoMapper.class);
         properties = new UidProperties();
-        properties.setBizType("order_id");
+        properties.setToken("order_id");
         TinyIdInfo info = new TinyIdInfo();
         info.setBizType("order_id");
         info.setMaxId(1000L);
@@ -35,7 +35,7 @@ public class UidGeneratorServiceTest {
     public void testGetId() {
       
         for (int i = 0; i < 100; i++) {
-            System.out.println(service.getId());
+            System.out.println(service.getId("order_id"));
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -43,7 +43,5 @@ public class UidGeneratorServiceTest {
             }
         }
 
-        
-       
     }
-} 
+}

@@ -1,4 +1,6 @@
-USE face_payment;
+DROP DATABASE IF EXISTS tinyid;
+CREATE DATABASE tinyid;
+USE tinyid;
 DROP TABLE IF EXISTS `tiny_id_info`;
 CREATE TABLE IF NOT EXISTS `tiny_id_info` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '自增主键',

@@ -1,12 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.uid.mapper.TinyIdInfoMapper">
-    <select id="selectByBizType" resultType="com.example.uid.model.TinyIdInfo">
-        SELECT id, biz_type, max_id, step, version FROM tiny_id_info WHERE biz_type = #{bizType}
+<mapper namespace="com.wukong.uid.mapper.TinyIdInfoMapper">
+    <resultMap id="TinyIdInfoResultMap" type="com.wukong.uid.model.TinyIdInfo">
+        <id column="id" property="id" />
+        <result column="biz_type" property="bizType" />
+        <result column="begin_id" property="beginId" />
+        <result column="max_id" property="maxId" />
+        <result column="step" property="step" />
+        <result column="delta" property="delta" />
+        <result column="remainder" property="remainder" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="version" property="version" />
+    </resultMap>
+    <select id="selectByBizType" resultMap="TinyIdInfoResultMap">
+        SELECT id, biz_type, begin_id, max_id, step, delta, remainder, create_time, update_time, version
+        FROM tiny_id_info WHERE biz_type = #{bizType}
     </select>
     <update id="updateMaxId">
         UPDATE tiny_id_info
         SET max_id = #{newMaxId}, version = version + 1, update_time = NOW()
         WHERE biz_type = #{bizType} AND max_id = #{oldMaxId} AND version = #{version}
     </update>
+    <select id="selectAllBizType" resultType="string">
+        SELECT biz_type FROM tiny_id_info
+    </select>
 </mapper> 

@@ -1,42 +1,47 @@
 package com.wukong.uid.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.wukong.uid.config.UidProperties;
 import com.wukong.uid.mapper.TinyIdInfoMapper;
 import com.wukong.uid.model.TinyIdInfo;
+import com.wukong.uid.config.UidProperties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
 public class UidGeneratorService {
     private final TinyIdInfoMapper tinyIdInfoMapper;
     private final UidProperties properties;
-    private List<Long> idPool = new ArrayList<>();
+    private Map<String, List<Long>> idPool = new HashMap<>();
 
     @Autowired
     public UidGeneratorService(TinyIdInfoMapper tinyIdInfoMapper, UidProperties properties) {
         this.tinyIdInfoMapper = tinyIdInfoMapper;
         this.properties = properties;
-        loadSegment();
-    }
-
-    public synchronized long getId() {
-        if (idPool.size() < 100) {
-            loadSegment();
+        List<String> bizTypes = tinyIdInfoMapper.selectAllBizType();
+        for (String bizType : bizTypes) {
+            loadSegment(bizType);
         }
-        return idPool.remove(idPool.size() - 1);
     }
 
-    private void loadSegment() {
-        System.out.println("loadSegment");
-        String bizType = properties.getBizType();
-        for (;;) {
+    public synchronized long getId(String bizType) {
+        if (idPool.isEmpty()) {
+            loadSegment(bizType);
+        }
+        return idPool.get(bizType).remove(idPool.get(bizType).size() - 1);
+    }
 
+    private void loadSegment(String bizType) {
+        System.out.println("loadSegment");
+        for (;;) {
             TinyIdInfo info = tinyIdInfoMapper.selectByBizType(bizType);
+            if (info == null) {
+                throw new IllegalStateException("未找到 bizType=" + bizType + " 的号段配置，请先初始化 tiny_id_info 表数据！");
+            }
             long oldMaxId = info.getMaxId();
             long newMaxId = oldMaxId + info.getStep();
             
@@ -47,7 +52,7 @@ public class UidGeneratorService {
                     newPool.add(i);
                 }
                 Collections.shuffle(newPool);
-                this.idPool = newPool;
+                this.idPool.put(bizType, newPool);
                 break;
             }
             // 并发下CAS失败，重试
