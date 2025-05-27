@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class UidGeneratorService {
@@ -42,14 +43,22 @@ public class UidGeneratorService {
             if (info == null) {
                 throw new IllegalStateException("未找到 bizType=" + bizType + " 的号段配置，请先初始化 tiny_id_info 表数据！");
             }
+            if (info.getDelta() < 1) {
+                throw new IllegalStateException("delta 不能小于 1");
+            }
             long oldMaxId = info.getMaxId();
             long newMaxId = oldMaxId + info.getStep();
             
             int updated = tinyIdInfoMapper.updateMaxId(bizType, newMaxId, oldMaxId, info.getVersion());
             if (updated == 1) {
                 List<Long> newPool = new ArrayList<>();
-                for (long i = oldMaxId; i < newMaxId; i++) {
+                for (long i = oldMaxId; i < newMaxId; ) {
                     newPool.add(i);
+                    if (info.getDelta() == 1) {
+                        i++;
+                    } else {
+                        i += ThreadLocalRandom.current().nextInt(1, info.getDelta()); // 包含 1 和 info.getDelta()
+                    }
                 }
                 Collections.shuffle(newPool);
                 this.idPool.put(bizType, newPool);
